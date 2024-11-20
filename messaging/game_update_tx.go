@@ -18,7 +18,10 @@ type GameUpdateTx struct {
 	updates chan *protos.GameUpdate
 }
 
-func NewGameUpdateTx(conn *amqp091.Connection, api_id, sim_id uuid.UUID) *GameUpdateTx {
+func NewGameUpdateTx(api_id, sim_id uuid.UUID) *GameUpdateTx {
+	conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "failed to connect to rabbit")
+
 	ch, err := conn.Channel()
 	failOnError(err, "failed to create channel")
 	defer ch.Close()

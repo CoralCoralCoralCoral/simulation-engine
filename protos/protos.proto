@@ -6,8 +6,8 @@ import "google/protobuf/timestamp.proto";
 option go_package = "./protos";
 
 message GameUpdate {
-    repeated AgentStateUpdatePayload agent_state_updates = 1;
-    repeated AgentLocationUpdatePayload agent_location_updates = 2;
+    repeated AgentUpdatePayload agent_state_updates = 1;
+    repeated AgentUpdatePayload agent_location_updates = 2;
     repeated SpaceOccupancyUpdatePayload space_occupancy_updates = 3;
     repeated CommandProcessedPayload commands_processed = 4;
 }
@@ -15,8 +15,8 @@ message GameUpdate {
 message Event {
     EventType type = 1;
     oneof payload {
-        AgentStateUpdatePayload agent_state_update = 2;
-        AgentLocationUpdatePayload agent_location_update = 3;
+        AgentUpdatePayload agent_state_update = 2;
+        AgentUpdatePayload agent_location_update = 3;
         SpaceOccupancyUpdatePayload space_occupancy_update = 4;
         CommandProcessedPayload command_processed = 5;
         EpochEndPayload epoch_end = 6;
@@ -31,18 +31,13 @@ enum EventType {
   EpochEnd = 4;
 }
 
-message AgentStateUpdatePayload {
+message AgentUpdatePayload {
     int64 epoch = 1;
     string id = 2;
     string state = 3;
-}
-
-message AgentLocationUpdatePayload {
-    int64 epoch = 1;
-    string id = 2;
-    string location_id = 3;
-    double location_lat = 4;
-    double location_lon = 5;
+    string location_id = 4;
+    double location_lat = 5;
+    double location_lon = 6;
 }
 
 message SpaceOccupancyUpdatePayload {

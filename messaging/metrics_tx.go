@@ -25,7 +25,10 @@ type Metrics struct {
 	ImmunePopulation     int
 }
 
-func NewMetricsTransmitter(conn *amqp091.Connection, api_id, sim_id uuid.UUID) *MetricsTx {
+func NewMetricsTransmitter(api_id, sim_id uuid.UUID) *MetricsTx {
+	conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "failed to connect to rabbit")
+
 	ch, err := conn.Channel()
 	failOnError(err, "failed to create channel")
 

@@ -158,10 +158,13 @@ func (agent *Agent) dispatchStateUpdateEvent(sim *Simulation) {
 	sim.logger.Log(&protos.Event{
 		Type: protos.EventType_AgentStateUpdate,
 		Payload: &protos.Event_AgentStateUpdate{
-			AgentStateUpdate: &protos.AgentStateUpdatePayload{
-				Epoch: sim.epoch,
-				Id:    agent.id.String(),
-				State: string(agent.state),
+			AgentStateUpdate: &protos.AgentUpdatePayload{
+				Epoch:       sim.epoch,
+				Id:          agent.id.String(),
+				State:       string(agent.state),
+				LocationId:  agent.location.id.String(),
+				LocationLat: agent.location.lat,
+				LocationLon: agent.location.lon,
 			},
 		},
 	})
@@ -171,9 +174,10 @@ func (agent *Agent) dispatchLocationUpdateEvent(sim *Simulation) {
 	sim.logger.Log(&protos.Event{
 		Type: protos.EventType_AgentLocationUpdate,
 		Payload: &protos.Event_AgentLocationUpdate{
-			AgentLocationUpdate: &protos.AgentLocationUpdatePayload{
+			AgentLocationUpdate: &protos.AgentUpdatePayload{
 				Epoch:       sim.epoch,
 				Id:          agent.id.String(),
+				State:       string(agent.state),
 				LocationId:  agent.location.id.String(),
 				LocationLat: agent.location.lat,
 				LocationLon: agent.location.lon,

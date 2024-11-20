@@ -1,13 +1,19 @@
 package main
 
 import (
+	"log"
+
+	"github.com/CoralCoralCoralCoral/simulation-engine/indexer"
 	"github.com/CoralCoralCoralCoral/simulation-engine/messaging"
 	"github.com/CoralCoralCoralCoral/simulation-engine/model"
 	"github.com/google/uuid"
-	"github.com/rabbitmq/amqp091-go"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	// create a game with 150k people
 	sim := model.NewSimulation(model.Config{
@@ -22,14 +28,10 @@ func main() {
 		},
 	})
 
-	conn, err := amqp091.Dial("amqp://guest:guest@localhost:5672/")
-	if err != nil {
-		panic("couldn't connect to rabbit")
-	}
-
 	// start a new metrics instance subscribed to simulation events
-	sim.Subscribe(messaging.NewMetricsTransmitter(conn, uuid.Max, sim.Id()).NewEventSubscriber())
-	sim.Subscribe(messaging.NewGameUpdateTx(conn, uuid.Max, sim.Id()).NewEventSubscriber())
+	sim.Subscribe(messaging.NewMetricsTransmitter(uuid.Max, sim.Id()).NewEventSubscriber())
+	sim.Subscribe(messaging.NewGameUpdateTx(uuid.Max, sim.Id()).NewEventSubscriber())
 
+	go indexer.Start()
 	sim.Start()
 }
