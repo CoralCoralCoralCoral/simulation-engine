@@ -14,33 +14,33 @@ const AgentLocationUpdate logger.EventType = "agent_location_update"
 const SpaceOccupancyUpdate logger.EventType = "space_occupancy_update"
 
 type EpochEndPayload struct {
-	Epoch    int64
-	TimeStep int64
-	Time     time.Time
+	Epoch    int64     `json:"epoch"`
+	TimeStep int64     `json:"time_step"`
+	Time     time.Time `json:"time"`
 }
 
 type CommandProcessedPayload struct {
-	Epoch   int64
-	Command Command
+	Epoch   int64   `json:"epoch"`
+	Command Command `json:"command"`
 }
 
 type AgentStateUpdatePayload struct {
-	Epoch int64
-	Id    uuid.UUID
-	State AgentState
+	Epoch int64      `json:"epoch"`
+	Id    uuid.UUID  `json:"id"`
+	State AgentState `json:"state"`
 }
 
 type AgentLocationUpdatePayload struct {
-	Epoch      int64
-	Id         uuid.UUID
-	LocationId uuid.UUID
+	Epoch      int64     `json:"epoch"`
+	Id         uuid.UUID `json:"id"`
+	LocationId uuid.UUID `json:"location_id"`
 }
 
 type SpaceOccupancyUpdatePayload struct {
-	Epoch     int64
-	Id        uuid.UUID
+	Epoch     int64     `json:"epoch"`
+	Id        uuid.UUID `json:"id"`
 	Occupants []struct {
-		Id    uuid.UUID
-		State AgentState
-	}
+		Id    uuid.UUID  `json:"id"`
+		State AgentState `json:"state"`
+	} `json:"occupants"`
 }

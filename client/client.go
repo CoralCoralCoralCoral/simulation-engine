@@ -1,31 +1,31 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
-	"net"
-	"os"
+	"encoding/json"
+
+	"github.com/CoralCoralCoralCoral/simulation-engine/model"
+	"github.com/google/uuid"
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:9876")
+	pathogen := model.Pathogen{
+		IncubationPeriod:   [2]float64{3 * 24 * 60 * 60 * 1000, 8 * 60 * 60 * 1000},
+		RecoveryPeriod:     [2]float64{7 * 24 * 60 * 60 * 1000, 8 * 60 * 60 * 1000},
+		ImmunityPeriod:     [2]float64{330 * 24 * 60 * 60 * 1000, 90 * 24 * 60 * 60 * 1000},
+		QuantaEmissionRate: [2]float64{250, 100},
+	}
+
+	config := model.Config{
+		Id:        uuid.New(),
+		TimeStep:  15 * 60 * 1000,
+		NumAgents: 150000,
+		Pathogen:  pathogen,
+	}
+
+	body, err := json.Marshal(config)
 	if err != nil {
-		fmt.Println("Error connecting to server:", err)
-		return
+		panic("AAAAH")
 	}
-	defer conn.Close()
 
-	for {
-		fmt.Print("\033[H\033[2J")
-
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Println("Enter a command:")
-		command, _ := reader.ReadString('\n')
-
-		_, err = conn.Write([]byte(command))
-		if err != nil {
-			fmt.Println("Error sending message:", err)
-			os.Exit(1)
-		}
-	}
+	println(string(body))
 }

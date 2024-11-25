@@ -9,24 +9,24 @@ import (
 )
 
 type Simulation struct {
-	id              uuid.UUID
-	pathogen        Pathogen
-	start_time      time.Time
-	epoch           int64
-	time_step       int64
-	agents          []*Agent
-	households      []*Space
-	offices         []*Space
-	social_spaces   []*Space
-	is_mask_mandate bool
-	is_lockdown     bool
-	is_paused       bool
-	should_quit     bool
-	commands        chan Command
-	logger          logger.Logger
+	id            uuid.UUID
+	pathogen      Pathogen
+	start_time    time.Time
+	epoch         int64
+	time_step     int64
+	agents        []*Agent
+	jurisdictions []*Jurisdiction
+	households    []*Space
+	offices       []*Space
+	social_spaces []*Space
+	is_paused     bool
+	should_quit   bool
+	commands      chan Command
+	logger        logger.Logger
 }
 
 func NewSimulation(config Config) Simulation {
+	jurisdictions := createJurisdictions()
 	households := createHouseholds(config.NumAgents)
 	offices := createOffices(config.NumAgents)
 	social_spaces := createSocialSpaces(config.NumAgents / 100)
@@ -41,6 +41,7 @@ func NewSimulation(config Config) Simulation {
 		epoch:         0,
 		time_step:     config.TimeStep,
 		agents:        agents,
+		jurisdictions: jurisdictions,
 		households:    households,
 		offices:       offices,
 		social_spaces: social_spaces,
@@ -88,6 +89,14 @@ func (sim *Simulation) processCommand(command Command) {
 		sim.is_paused = true
 	case Resume:
 		sim.is_paused = false
+	case ApplyJurisdictionPolicy:
+		if payload, ok := command.Payload.(ApplyJurisdictionPolicyPayload); ok {
+			sim.applyJurisdictionPolicy(payload)
+		}
+	case ApplySpacePolicy:
+		if payload, ok := command.Payload.(ApplySpacePolicyPayload); ok {
+			sim.applySpacePolicy(payload)
+		}
 	}
 
 	sim.logger.Log(logger.Event{
@@ -139,6 +148,44 @@ func (sim *Simulation) infectRandomAgent() {
 
 func (sim *Simulation) time() time.Time {
 	return sim.start_time.Add(time.Duration(sim.epoch*sim.time_step) * time.Millisecond)
+}
+
+func (sim *Simulation) applyJurisdictionPolicy(payload ApplyJurisdictionPolicyPayload) {
+	for _, jur := range sim.jurisdictions {
+		if jur.id == payload.JurisdictionId {
+			jur.applyPolicy(&payload.Policy)
+			return
+		}
+	}
+}
+
+func (sim *Simulation) applySpacePolicy(payload ApplySpacePolicyPayload) {
+	for _, space := range sim.households {
+		if space.id == payload.SpaceId {
+			space.applyPolicy(&payload.Policy)
+			return
+		}
+	}
+
+	for _, space := range sim.offices {
+		if space.id == payload.SpaceId {
+			space.applyPolicy(&payload.Policy)
+			return
+		}
+	}
+
+	for _, space := range sim.social_spaces {
+		if space.id == payload.SpaceId {
+			space.applyPolicy(&payload.Policy)
+			return
+		}
+	}
+}
+
+func createJurisdictions() []*Jurisdiction {
+	jurisdictions := make([]*Jurisdiction, 0)
+
+	return jurisdictions
 }
 
 func createHouseholds(total_capacity int64) []*Space {
