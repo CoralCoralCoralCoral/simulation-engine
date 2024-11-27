@@ -205,6 +205,8 @@ func (agent *Agent) dispatchStateUpdateEvent(sim *Simulation, previous_state Age
 			State:               agent.state,
 			PreviousState:       previous_state,
 			HasInfectionProfile: agent.infection_profile != nil,
+
+			jurisdiction: agent.household.jurisdiction,
 		},
 	}
 

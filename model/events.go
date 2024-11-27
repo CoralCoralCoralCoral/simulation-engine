@@ -30,6 +30,9 @@ type AgentStateUpdatePayload struct {
 	State               AgentState `json:"state"`
 	PreviousState       AgentState `json:"previous_state"`
 	HasInfectionProfile bool       `json:"has_infection_profile"`
+
+	// needed for metrics aggregation. not public and therefore not a json serialized field
+	jurisdiction *Jurisdiction
 }
 
 type AgentLocationUpdatePayload struct {
@@ -46,4 +49,8 @@ type SpaceOccupancyUpdatePayload struct {
 		Id    uuid.UUID  `json:"id"`
 		State AgentState `json:"state"`
 	} `json:"occupants"`
+}
+
+func (payload *AgentStateUpdatePayload) Jurisdiction() *Jurisdiction {
+	return payload.jurisdiction
 }

@@ -8,6 +8,10 @@ type Jurisdiction struct {
 	policy *Policy
 }
 
+func (jur *Jurisdiction) Parent() *Jurisdiction {
+	return jur.parent
+}
+
 func newJurisdiction(id string, parent *Jurisdiction) *Jurisdiction {
 	jur := Jurisdiction{
 		id:     id,
@@ -20,7 +24,8 @@ func newJurisdiction(id string, parent *Jurisdiction) *Jurisdiction {
 func jurisdictionsFromFeatures() []*Jurisdiction {
 	features := geo.LoadFeatures()
 
-	jurisdictions := make([]*Jurisdiction, 0, len(features))
+	// allocate array of length feature length + 1 (to also contain the GLOBAL jurisdiction)
+	jurisdictions := make([]*Jurisdiction, 0, len(features)+1)
 
 	// create jurisdictions
 	for _, feature := range features {
@@ -44,6 +49,16 @@ func jurisdictionsFromFeatures() []*Jurisdiction {
 			}
 		}
 	}
+
+	// assign the highest level jurisdictions (orphan jurisdictions to the GLOBAL jurisdiction)
+	global_jur := newJurisdiction("GLOBAL", nil)
+	for _, jur := range jurisdictions {
+		if jur.parent == nil {
+			jur.parent = global_jur
+		}
+	}
+
+	jurisdictions = append(jurisdictions, global_jur)
 
 	return jurisdictions
 }
